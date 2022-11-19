@@ -119,6 +119,10 @@ class botcmnds(commands.Cog):
             embed = discord.Embed(description=str(error), colour=discord.Colour.green())
             await ctx.send(embed=embed, delete_after=5)
 
+        if isinstance(error, commands.MissingPermissions):
+            embed = discord.Embed(description=str(error), colour=discord.Colour.green())
+            await ctx.send(embed=embed, delete_after=5)
+
     @commands.command(pass_context=True)
     @perms()
     async def nick(self, ctx, *, name):
@@ -303,6 +307,34 @@ class botcmnds(commands.Cog):
                                 return
                             elif i[1] == 0 and m.content == i[2]:
                                 await m.channel.send(i[3])
+
+    @commands.command()
+    @commands.has_permissions(manage_guild=True)
+    async def prefix(self, ctx, newprefix):
+        async with asqlite.connect(self.bot.database_file) as conn:
+            async with conn.cursor() as cursor:
+                try:
+                    await cursor.execute(
+                        "SELECT * FROM prefix WHERE guild=?", (ctx.guild.id)
+                    )
+                    rows = await cursor.fetchall()
+                    if rows:
+                        await cursor.execute(
+                            "UPDATE prefix set prefix=? WHERE guild=?",
+                            (newprefix, ctx.guild.id),
+                        )
+                        await conn.commit()
+                        await ctx.send("Changed the bot prefix to ``%s``" % (newprefix))
+                    else:
+                        await cursor.execute(
+                            "INSERT INTO prefix(guild,prefix) VALUES(?,?)",
+                            (ctx.guild.id, newprefix),
+                        )
+                        await conn.commit()
+                        await ctx.send("Added ``%s`` as bot prefix" % newprefix)
+                except Exception as e:
+                    print(e)
+                self.bot.prefixes.update({ctx.guild.id: newprefix})
 
 
 async def setup(bot):

@@ -34,12 +34,13 @@ import tomli
 
 import database
 
-with open('core/config.toml', 'rb') as fp:
+with open("core/config.toml", "rb") as fp:
     config = tomli.load(fp)
 
 
 class Bot(commands.Bot):
     """Base class for the bot"""
+
     discord.utils.setup_logging(level=logging.INFO)
 
     # noinspection PyDunderSlots, PyUnresolvedReferences
@@ -48,43 +49,42 @@ class Bot(commands.Bot):
         intents.members = True
         intents.message_content = True
 
-        super().__init__(command_prefix=None,
-                         intents=intents,
-                         strip_after_prefix=True)
+        super().__init__(command_prefix=None, intents=intents, strip_after_prefix=True)
 
         self.started: datetime.datetime = datetime.datetime.now(
-            tz=datetime.timezone.utc)
+            tz=datetime.timezone.utc
+        )
 
     async def setup_hook(self) -> None:
-        await self.load_extension('jishaku')
+        await self.load_extension("jishaku")
         modules: list[str] = [
-            f'{p.parent}.{p.stem}' for p in pathlib.Path('modules').glob('*.py')]
+            f"{p.parent}.{p.stem}" for p in pathlib.Path("modules").glob("*.py")
+        ]
 
         for module in modules:
             await self.load_extension(module)
 
-        self.database_file = 'database.db'
+        self.database_file = "database.db"
         self.session = aiohttp.ClientSession()
         self.database = await database.main(self.database_file)
 
+        # Caching prefixes
+        async with asqlite.connect(self.database_file) as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute("SELECT * FROM prefix")
+                rows = await cursor.fetchall()
+                self.prefixes = {x[0]: x[1] for x in rows}
+
     async def on_ready(self) -> None:
         """called when the bot is ready"""
-        print(f'Logged in as {self.user}(ID: {self.user.id})')
+        print(f"Logged in as {self.user}(ID: {self.user.id})")
 
     async def get_prefix(self, message):
         try:
-            async with asqlite.connect(self.database_file) as conn:
-                async with conn.cursor() as cursor:
-                    await cursor.execute("SELECT * FROM prefix WHERE guild=?",
-                                         (message.guild.id))
-                    rows = await cursor.fetchall()
-                    prefix_list = []
-                    for row in rows:
-                        prefix_list.append(row[2])
-        except Exception as e:
-            print(e)
-        return commands.when_mentioned_or('yo bro', *prefix_list)(self,
-                                                                  message)
+            prefix_list = [self.prefixes[message.guild.id]]
+        except KeyError:
+            prefix_list = []
+        return commands.when_mentioned_or("yo bro", *prefix_list)(self, message)
 
     async def close(self) -> None:
         await super().close()
