@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from .useful import disable_channel
+from .useful import channel_blocked
 
 
 class MyHelp(commands.HelpCommand):
@@ -51,7 +51,7 @@ class HelpCog(commands.Cog):
         help_command = MyHelp()
         help_command.cog = self  # Instance of YourCog class
         bot.help_command = help_command
-        bot.help_command.add_check(disable_channel())
+        bot.help_command.add_check(channel_blocked)
 
 
 async def setup(bot):
