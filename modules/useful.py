@@ -337,5 +337,45 @@ class botcmnds(commands.Cog):
                 self.bot.prefixes.update({ctx.guild.id: newprefix})
 
 
+    @commands.command()
+    async def scrape_stickers(self, ctx, server: int = None):
+        """Grabs all stickers from all guilds the bot is in, and sends them in a stickers.zip file."""
+        memfile = io.BytesIO()
+
+        zip_file = zipfile.ZipFile(memfile, "w")
+        async with ctx.typing():
+            # await ctx.send('test')
+            guild = self.bot.get_guild(server)
+            guild_name = guild.name.replace("/", "")
+            async with self.bot.session as session:
+                for sticker in guild.stickers:
+                    sticker_url = (
+                        f"https://media.discordapp.net/stickers/{sticker.id}.png"
+                    )
+                    extension = str(sticker_url).split(".")[-1]
+                    stickername = (
+                        f"stickers/{guild_name}/{sticker.name}.{extension}"
+                    )
+                    # print(stickername)
+                    # check if this guild has multiple of the same emoji name,and
+                    # rename them accordingly
+                    try:
+                        multiple_num = 0
+                        while stickername in zip_file.namelist():
+                            multiple_num += 1
+                            stickername = f"stickers/{stickername}/{sticker.name}~{multiple_num}.{extension}"
+                            async with session.get(sticker_url) as resp:
+                                # print(await resp.read())
+                                zip_file.writestr(
+                                    stickername,
+                                    await resp.read(),
+                                )
+                    except Exception as e:
+                        print(e)
+
+            zip_file.close()
+            memfile.seek(0)
+            await ctx.send(file=discord.File(memfile, filename="stickers.zip"))
+
 async def setup(bot):
     await bot.add_cog(botcmnds(bot))
