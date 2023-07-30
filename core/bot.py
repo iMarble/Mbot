@@ -56,10 +56,7 @@ class Bot(commands.Bot):
         )
 
     async def setup_hook(self) -> None:
-        await self.load_extension("jishaku")
-        modules: list[str] = [
-            f"{p.parent}.{p.stem}" for p in pathlib.Path("modules").glob("*.py")
-        ]
+        try:
 
         for module in modules:
             await self.load_extension(module)
