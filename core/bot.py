@@ -57,10 +57,16 @@ class Bot(commands.Bot):
 
     async def setup_hook(self) -> None:
         try:
+            await self.load_extension("jishaku")
+            modules: list[str] = [
+                f"{p.parent}.{p.stem}" for p in pathlib.Path("modules").glob("*.py")
+            ]
 
-        for module in modules:
-            await self.load_extension(module)
-
+            for module in modules:
+                await self.load_extension(module)
+        except:
+            print("Extension not loaded!")
+        
         self.database_file = "database.db"
         self.session = aiohttp.ClientSession()
         self.database = await database.main(self.database_file)
