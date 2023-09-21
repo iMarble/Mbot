@@ -49,7 +49,7 @@ class Bot(commands.Bot):
         intents.members = True
         intents.message_content = True
 
-        super().__init__(command_prefix=None, intents=intents, strip_after_prefix=True)
+        super().__init__(command_prefix=None, intents=intents, strip_after_prefix=True, status=discord.Status.invisible)
 
         self.started: datetime.datetime = datetime.datetime.now(
             tz=datetime.timezone.utc
@@ -64,8 +64,8 @@ class Bot(commands.Bot):
 
             for module in modules:
                 await self.load_extension(module)
-        except:
-            print("Extension not loaded!")
+        except Exception as e:
+            print(f"Extension not loaded! {e}")
         
         self.database_file = "database.db"
         self.session = aiohttp.ClientSession()
