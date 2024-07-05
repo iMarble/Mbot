@@ -283,7 +283,7 @@ class botcmnds(commands.Cog):
                     for i in reactiondata:
                         if i[4] != i[5]:
                             await cursor.execute(
-                                """'UPDATE reactions set start_count=?
+                                """UPDATE reactions set start_count=?
                                                      where user_id=?""",
                                 (i[4] + 1, m.author.id),
                             )
