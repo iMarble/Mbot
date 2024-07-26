@@ -54,7 +54,7 @@ def disable_channel():
 class fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.guildids = [493063429133697024, 621609685539225620]
+        self.channelids = [493063429133697024, 621609685539225622]
 
     async def cog_load(self):
         asyncio.create_task(self.get_cache())
@@ -95,7 +95,7 @@ class fun(commands.Cog):
 
         if (
             message.content.lower() == "thegho"
-            and message.channel.id in self.guildids
+            and message.channel.id in self.channelids
             and girlrole not in message.author.roles
         ):
             for i in (letterg, letterh, lettero, theghoemoji, "🤨"):
