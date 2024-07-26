@@ -49,7 +49,7 @@ class Bot(commands.Bot):
         intents.members = True
         intents.message_content = True
 
-        super().__init__(command_prefix=None, intents=intents, strip_after_prefix=True, status=discord.Status.invisible)
+        super().__init__(command_prefix=None, intents=intents, strip_after_prefix=True, status=discord.Status.idle)
 
         self.started: datetime.datetime = datetime.datetime.now(
             tz=datetime.timezone.utc
