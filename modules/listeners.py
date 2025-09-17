@@ -56,7 +56,7 @@ class Listeners(commands.Cog):
 
     @commands.Cog.listener(name="on_voice_state_update")
     async def voice_join(self, member, before, after):
-        if after.channel is not None and after.channel.id in self.spikeleague_channel_ids and member.id == 450647525469454336:
+        if after.channel is not None and after.channel.id in self.spikeleague_channel_ids:
             
             await self.log_channel.send(f"{member} joined {after.channel.name}")
             
@@ -65,13 +65,24 @@ class Listeners(commands.Cog):
                 if after.channel.id in self.channel_role_mapping:
                     role_to_add = self.channel_role_mapping[after.channel.id]
                     await member.add_roles(role_to_add)
-                    await self.log_channel.send(f"Added role {role_to_add.name} to member.")
+                    await self.log_channel.send(f"Added role {role_to_add.name} to {member}.")
 
 
     @commands.Cog.listener(name="on_voice_state_update")
     async def voice_leave(self, member, before, after):
         # Condition 1: Member leaves a voice channel that is in spikeleague_channel_ids
         if after.channel is None and before.channel.id in self.spikeleague_channel_ids:
+            # Log the channel the member left
+            await self.log_channel.send(f"{member} left {before.channel.name}")
+
+            # Look up the role to remove based on the before.channel.id
+            role_to_remove = self.channel_role_mapping.get(before.channel.id)
+
+            if role_to_remove and role_to_remove in member.roles:
+                await member.remove_roles(role_to_remove)
+                await self.log_channel.send(f"Removed {role_to_remove.name} role from {member}")
+
+        elif after.channel is not None and before.channel.id in self.spikeleague_channel_ids:
             # Log the channel the member left
             await self.log_channel.send(f"{member} left {before.channel.name}")
 
