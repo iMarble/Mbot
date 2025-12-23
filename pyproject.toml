@@ -1,0 +1,12 @@
+[project]
+name = "mbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "asqlite>=2.0.0",
+    "discord>=2.3.2",
+    "jishaku>=2.6.3",
+    "tomli>=2.3.0",
+]

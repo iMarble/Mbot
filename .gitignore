@@ -132,3 +132,5 @@ dmypy.json
 *.toml
 *.db
 .vscode
+
+!pyproject.toml
