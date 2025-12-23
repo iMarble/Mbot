@@ -38,6 +38,17 @@ async def main(database_file):
     guild integer NOT NULL,
     prefix text);"""
 
+    sql_create_chat_whitelist_table = """CREATE TABLE IF NOT EXISTS chat_whitelist (
+    user_id integer PRIMARY KEY,
+    name text NOT NULL);"""
+
+    sql_create_chat_memory_table = """CREATE TABLE IF NOT EXISTS chat_memory (
+    id integer PRIMARY KEY AUTOINCREMENT,
+    user_id integer NOT NULL,
+    role text NOT NULL,
+    content text NOT NULL,
+    timestamp text NOT NULL);"""
+
     async with asqlite.connect(database) as conn:
 
         if conn is not None:
@@ -48,6 +59,8 @@ async def main(database_file):
                 await cursor.execute(sql_create_reactions_table)
                 await cursor.execute(sql_create_send_message_table)
                 await cursor.execute(sql_create_prefix_table)
+                await cursor.execute(sql_create_chat_whitelist_table)
+                await cursor.execute(sql_create_chat_memory_table)
                 await conn.commit()
         else:
             print("Error! cannot create the database connection")

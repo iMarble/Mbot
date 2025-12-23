@@ -30,12 +30,8 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-import tomli
-
 import database
-
-with open("core/config.toml", "rb") as fp:
-    config = tomli.load(fp)
+from . import config
 
 
 class Bot(commands.Bot):
@@ -83,11 +79,12 @@ class Bot(commands.Bot):
         print(f"Logged in as {self.user}(ID: {self.user.id})")
 
     async def get_prefix(self, message):
+        prefix_list = ["yo bro"]
         try:
-            prefix_list = [self.prefixes[message.guild.id]]
+            prefix_list.append(self.prefixes[message.guild.id])
         except KeyError:
-            prefix_list = []
-        return commands.when_mentioned_or("yo bro", *prefix_list)(self, message)
+            pass
+        return prefix_list
 
     async def close(self) -> None:
         await super().close()
